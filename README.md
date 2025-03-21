@@ -73,33 +73,11 @@ $ cast --help
 * PropertyMethodsV2 is the implementation contract containing additional business logic
 
 
-
-## Deployment Process:
-1. Deploy the implementation
-```shell
-PropertyMethods implementation = new PropertyMethods();
-```
-
-2. Deploy the proxy admin
-```shell
-ProxyAdmin admin = new ProxyAdmin();
-```
-
-3. Deploy the proxy with initialization data
-```shell
-bytes memory data = abi.encodeWithSignature("initialize(string)", baseURI);
-PropertyProxy proxy = new PropertyProxy(
-    address(implementation),
-    address(admin),
-    data
-);
-```
-
-## How Upgrades Work:
+## Deployment and Upgrades:
 All user interactions go through the proxy address
 The proxy delegates all calls to the current implementation
 
-###Initial deploy:
+### Initial deploy:
 // Deploy new implementation contract
 ```shell
 PropertyMethodsV1 implementationV1 = new PropertyMethodsV1();
@@ -111,7 +89,7 @@ TransparentUpgradeableProxy propertyProxy =
             new TransparentUpgradeableProxy(address(implementationV1), address(proxyAdmin), data);
 ```
 
-// Upgrade implementation contract. As above
+### Upgrade:
 // Deploy revised implementation contract
 ```shell
 PropertyMethodsV2 implementationV2 = new PropertyMethodsV2();
@@ -120,7 +98,8 @@ PropertyMethodsV2 implementationV2 = new PropertyMethodsV2();
 // PropertyProxy delegates to new implementation contract, again using ProxyAdmin controller. 
 ```shell
  proxyAdmin.upgradeAndCall{value: 0}(
-            ITransparentUpgradeableProxy(payable(proxyAddress)), address(implementationV2), data
+            ITransparentUpgradeableProxy(payable(proxyAddress)), address(implementationV2),
+            data
         );
 ```
 
