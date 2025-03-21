@@ -10,7 +10,7 @@ import {PropertyToken} from "./PropertyToken.sol";
  * @notice Implementation contract for property management functionality
  * @dev This contract contains the business logic for property management
  */
-contract PropertyMethods is Initializable, OwnableUpgradeable {
+contract PropertyMethodsV1 is Initializable, OwnableUpgradeable {
     // Storage variables
     string internal _baseURI;
     mapping(uint256 => PropertyData) public propertyData;
