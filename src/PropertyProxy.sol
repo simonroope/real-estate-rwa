@@ -10,7 +10,7 @@ import "./PropertyPool.sol";
  * @notice Proxy contract for the PropertyToken system that enables upgradeability
  * @dev Uses OpenZeppelin's TransparentUpgradeableProxy pattern
  */
-contract PropertyTokenProxy is PropertyPool {
+contract PropertyProxy is PropertyPool {
     // Immutable proxy admin for managing upgrades
     address public immutable proxyAdmin;
     

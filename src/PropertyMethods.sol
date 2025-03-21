@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
  * @notice Implementation contract for property creation and management
  * @dev This contract contains the logic that the proxy will delegate to
  */
-contract PropertyTokenImpl is PropertyPool {
+contract PropertyMethods is PropertyPool {
     using Strings for uint256;
 
     // Events
