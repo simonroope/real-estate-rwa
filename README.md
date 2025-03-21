@@ -67,10 +67,11 @@ $ cast --help
 
 # Real Estate RWA
 ## Initial Setup:
-* PropertyToken is the Real Estate ERC1155 token
-* PropertyMethods is the implementation contract containing all the business logic
-* PropertyPool contains the storage layout
+* PropertyToken is the immutable Real Estate ERC1155 token
 * PropertyProxy is the proxy contract that users interact with
+* PropertyMethodsV1 is the implementation contract containing the business logic
+* PropertyMethodsV2 is the implementation contract containing additional business logic
+
 
 
 ## Deployment Process:
@@ -97,28 +98,36 @@ PropertyProxy proxy = new PropertyProxy(
 ## How Upgrades Work:
 All user interactions go through the proxy address
 The proxy delegates all calls to the current implementation
-To upgrade:
-// Deploy new implementation
+
+###Initial deploy:
+// Deploy new implementation contract
 ```shell
-PropertyMethods newImplementation = new PropertyMethods();
+PropertyMethodsV1 implementationV1 = new PropertyMethodsV1();
 ```
 
-// Through the proxy admin
+// PropertyProxy delegates to implementation contract using ProxyAdmin controller. 
 ```shell
-admin.upgrade(proxy, address(newImplementation));
+TransparentUpgradeableProxy propertyProxy =
+            new TransparentUpgradeableProxy(address(implementationV1), address(proxyAdmin), data);
 ```
 
-// Or with initialization data
+// Upgrade implementation contract. As above
+// Deploy revised implementation contract
 ```shell
-admin.upgradeAndCall(
-    proxy,
-    address(newImplementation),
-    abi.encodeWithSignature("initialize(string)", "newBaseURI")
-);
+PropertyMethodsV2 implementationV2 = new PropertyMethodsV2();
+```
+
+// PropertyProxy delegates to new implementation contract, again using ProxyAdmin controller. 
+```shell
+ proxyAdmin.upgradeAndCall{value: 0}(
+            ITransparentUpgradeableProxy(payable(proxyAddress)), address(implementationV2), data
+        );
 ```
 
 ## Key Points:
-* Storage is preserved because it's in the proxy contract
-* Only the logic in PropertyMethods can be upgraded
-* The storage layout in PropertyPool must remain the same
-* Users always interact with the proxy address, not the implementation
+* The proxy contract holds all the storage data
+* Storage is preserved because all storage variables remain in the proxy contract's storage. 
+* The implementation contracts (PropertyMethodsV1 and PropertyMethodsV2) only contain the logic.
+* The PropertyToken is immutable and referenced by the implementation contracts.
+* Only the PropertyMethods contracts can be upgraded. The upgrade just changes which implementation contract the proxy points to.
+* Users always interact with the proxy contract address, not the implementation.
