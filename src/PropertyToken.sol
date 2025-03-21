@@ -1,58 +1,70 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import "./PropertyPool.sol";
+import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title PropertyToken
- * @notice Main entry point for the PropertyToken system
- * @dev This contract delegates all calls to the implementation contract
+ * @notice Immutable ERC1155 token contract for property shares
+ * @dev This contract handles the core ERC1155 functionality
  */
-contract PropertyToken is PropertyPool {
-    // Address of the proxy admin contract
-    ProxyAdmin public immutable proxyAdmin;
+contract PropertyToken is ERC1155 {
+    using Strings for uint256;
 
-    // The proxy that delegates to the implementation
-    TransparentUpgradeableProxy public immutable proxy;
+    // Token configuration
+    uint256 public constant TOKEN_ID = 1;
+    uint256 public constant TOKEN_AMOUNT = 1;
+    uint256 public constant TOKEN_PRICE = 1000 * 10 ** 18; // 1000 USDC
+    uint256 public constant TOKEN_SUPPLY = 1000;
+    uint256 public constant TOKEN_DECIMALS = 18;
+    string public constant TOKEN_SYMBOL = "PROP";
+    string public constant TOKEN_NAME = "Property Token";
 
-    constructor(address implementation, string memory baseURI) PropertyPool(baseURI) {
-        // Deploy the proxy admin
-        proxyAdmin = new ProxyAdmin(msg.sender);
+    constructor(string memory uri_) ERC1155(uri_) {}
 
-        // Deploy the proxy pointing to the implementation
-        proxy = new TransparentUpgradeableProxy(
-            implementation, address(proxyAdmin), abi.encodeWithSignature("initialize(string)", baseURI)
-        );
+    /**
+     * @notice Get the URI for a token's metadata
+     * @param tokenId Token ID to query
+     */
+    function uri(uint256 tokenId) public view virtual override returns (string memory) {
+        return string(abi.encodePacked(super.uri(0), tokenId.toString()));
     }
 
     /**
-     * @dev Fallback function that delegates all calls to the proxy
+     * @notice Mint tokens to an address
+     * @param to Address to mint tokens to
+     * @param tokenId Token ID to mint
+     * @param amount Amount of tokens to mint
+     * @param data Additional data to pass to receiver
      */
-    fallback() external payable {
-        address _proxy = address(proxy);
-        assembly {
-            // Copy msg.data. We take full control of memory in this inline assembly
-            // block because it will not return to Solidity code.
-            calldatacopy(0, 0, calldatasize())
-
-            // Call the implementation.
-            // out and outsize are 0 because we don't know the size yet.
-            let result := delegatecall(gas(), _proxy, 0, calldatasize(), 0, 0)
-
-            // Copy the returned data.
-            returndatacopy(0, 0, returndatasize())
-
-            switch result
-            // delegatecall returns 0 on error.
-            case 0 { revert(0, returndatasize()) }
-            default { return(0, returndatasize()) }
-        }
+    function mint(address to, uint256 tokenId, uint256 amount, bytes memory data) external {
+        _mint(to, tokenId, amount, data);
     }
 
     /**
-     * @dev Required to receive ETH
+     * @notice Burn tokens from an address
+     * @param from Address to burn tokens from
+     * @param tokenId Token ID to burn
+     * @param amount Amount of tokens to burn
      */
-    receive() external payable {}
+    function burn(address from, uint256 tokenId, uint256 amount) external {
+        _burn(from, tokenId, amount);
+    }
+
+    /**
+     * @notice Safe transfer tokens from one address to another
+     * @param from Address to transfer from
+     * @param to Address to transfer to
+     * @param tokenId Token ID to transfer
+     * @param amount Amount of tokens to transfer
+     * @param data Additional data to pass to receiver
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId, uint256 amount, bytes memory data)
+        public
+        virtual
+        override
+    {
+        _safeTransferFrom(from, to, tokenId, amount, data);
+    }
 }

@@ -6,19 +6,21 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {PropertyToken} from "./PropertyToken.sol";
 
 /**
- * @title PropertyMethods
- * @notice Implementation contract for property management functionality
+ * @title PropertyMethodsV2
+ * @notice Implementation contract for property management functionality (Version 2)
  * @dev This contract contains the business logic for property management
  */
-contract PropertyMethods is Initializable, OwnableUpgradeable {
-    // Storage variables
+contract PropertyMethodsV2 is Initializable, OwnableUpgradeable {
+    // Storage variables - MUST maintain same order as V1
     string internal _baseURI;
     mapping(uint256 => PropertyData) public propertyData;
     mapping(address => uint256[]) public userProperties;
     mapping(address => mapping(uint256 => uint256)) public userInvestments;
     mapping(address => bool) public authorizedMinters;
+    // New storage variable - added at the end
+    mapping(uint256 => string) public propertyDescriptions;
 
-    // Structs
+    // Structs - MUST maintain same order as V1
     struct PropertyData {
         uint256 totalShares;
         uint256 availableShares;
@@ -32,6 +34,8 @@ contract PropertyMethods is Initializable, OwnableUpgradeable {
     event PropertySharesSold(uint256 indexed propertyId, address indexed seller, uint256 amount);
     event MinterAuthorized(address indexed minter);
     event MinterRevoked(address indexed minter);
+    // New event
+    event PropertyDescriptionUpdated(uint256 indexed propertyId, string description);
 
     // Errors
     error InsufficientShares();
@@ -71,9 +75,6 @@ contract PropertyMethods is Initializable, OwnableUpgradeable {
         newProperty.totalShares = totalShares;
         newProperty.availableShares = totalShares;
         newProperty.propertyOwner = msg.sender;
-
-        // Mint tokens to the property owner
-        propertyToken.mint(msg.sender, propertyId, totalShares, "");
 
         userProperties[msg.sender].push(propertyId);
         emit PropertyCreated(propertyId, msg.sender, totalShares);
@@ -179,5 +180,34 @@ contract PropertyMethods is Initializable, OwnableUpgradeable {
      */
     function getUserInvestment(address account, uint256 propertyId) external view returns (uint256) {
         return userInvestments[account][propertyId];
+    }
+
+    // New functions in V2
+    /**
+     * @notice Get the contract version
+     */
+    function version() public pure returns (string memory) {
+        return "2.0.0";
+    }
+
+    /**
+     * @notice Set the description for a property
+     * @param propertyId ID of the property
+     * @param description Description to set
+     */
+    function setPropertyDescription(uint256 propertyId, string memory description) external {
+        if (propertyData[propertyId].totalShares == 0) revert PropertyNotFound();
+        if (propertyData[propertyId].propertyOwner != msg.sender) revert UnauthorizedMinter();
+
+        propertyDescriptions[propertyId] = description;
+        emit PropertyDescriptionUpdated(propertyId, description);
+    }
+
+    /**
+     * @notice Get the description for a property
+     * @param propertyId ID of the property
+     */
+    function getPropertyDescription(uint256 propertyId) external view returns (string memory) {
+        return propertyDescriptions[propertyId];
     }
 }
