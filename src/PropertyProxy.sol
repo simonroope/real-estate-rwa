@@ -10,9 +10,7 @@ import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
  * @dev Uses OpenZeppelin's TransparentUpgradeableProxy pattern
  */
 contract PropertyProxy is TransparentUpgradeableProxy {
-    constructor(
-        address _logic,
-        address admin_,
-        bytes memory _data
-    ) TransparentUpgradeableProxy(_logic, admin_, _data) {}
+    constructor(address _logic, address admin_, bytes memory _data)
+        TransparentUpgradeableProxy(_logic, admin_, _data)
+    {}
 }

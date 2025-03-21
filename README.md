@@ -65,26 +65,26 @@ $ anvil --help
 $ cast --help
 ```
 
-### Real Estate RWA
-1. Initial Setup:
+# Real Estate RWA
+## Initial Setup:
 * PropertyToken is the Real Estate ERC1155 token
 * PropertyMethods is the implementation contract containing all the business logic
 * PropertyPool contains the storage layout
 * PropertyProxy is the proxy contract that users interact with
 
 
-2. Deployment Process:
-// 1. Deploy the implementation
+## Deployment Process:
+1. Deploy the implementation
 ```shell
 PropertyMethods implementation = new PropertyMethods();
 ```
 
-// 2. Deploy the proxy admin
+2. Deploy the proxy admin
 ```shell
 ProxyAdmin admin = new ProxyAdmin();
 ```
 
-// 3. Deploy the proxy with initialization data
+3. Deploy the proxy with initialization data
 ```shell
 bytes memory data = abi.encodeWithSignature("initialize(string)", baseURI);
 PropertyProxy proxy = new PropertyProxy(
@@ -94,7 +94,7 @@ PropertyProxy proxy = new PropertyProxy(
 );
 ```
 
-3. How Upgrades Work:
+## How Upgrades Work:
 All user interactions go through the proxy address
 The proxy delegates all calls to the current implementation
 To upgrade:
@@ -117,7 +117,7 @@ admin.upgradeAndCall(
 );
 ```
 
-4. Key Points:
+## Key Points:
 * Storage is preserved because it's in the proxy contract
 * Only the logic in PropertyMethods can be upgraded
 * The storage layout in PropertyPool must remain the same
