@@ -29,7 +29,7 @@ contract PropertyPool is ERC1155, Ownable {
     mapping(address => bool) internal authorizedMinters;
 
     // Constructor
-    constructor(string memory baseURI) ERC1155(baseURI) {
+    constructor(string memory baseURI) ERC1155(baseURI) Ownable(msg.sender) {
         _baseURI = baseURI;
     }
 }

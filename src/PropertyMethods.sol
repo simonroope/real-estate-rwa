@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import "./PropertyPool.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+import "./PropertyPool.sol";
 
 /**
  * @title PropertyMethods
  * @notice Implementation contract for property creation and management
  * @dev This contract contains the logic that the proxy will delegate to
  */
-contract PropertyMethods is PropertyPool {
+abstract contract PropertyMethods is PropertyPool {
     using Strings for uint256;
 
     // Events
