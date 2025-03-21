@@ -32,11 +32,10 @@ contract PropertyProxy is TransparentUpgradeableProxy, ERC1155 {
         mapping(address => uint256) shareholderShares;
     }
 
-    constructor(
-        address _logic,
-        address admin_,
-        bytes memory _data
-    ) TransparentUpgradeableProxy(_logic, admin_, _data) ERC1155("") {}
+    constructor(address _logic, address admin_, bytes memory _data)
+        TransparentUpgradeableProxy(_logic, admin_, _data)
+        ERC1155("")
+    {}
 
     // Override uri to use our storage
     function uri(uint256 tokenId) public view override returns (string memory) {
