@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
 /**
- * @title PropertyTokenImpl
+ * @title PropertyMethods
  * @notice Implementation contract for property creation and management
  * @dev This contract contains the logic that the proxy will delegate to
  */

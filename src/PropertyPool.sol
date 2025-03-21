@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title PropertyTokenStorage
+ * @title PropertyPool
  * @notice Storage contract for PropertyToken system
  */
 contract PropertyPool is ERC1155, Ownable {

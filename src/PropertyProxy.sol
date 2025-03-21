@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "./PropertyPool.sol";
 
 /**
- * @title PropertyTokenProxy
+ * @title PropertyProxy
  * @notice Proxy contract for the PropertyToken system that enables upgradeability
  * @dev Uses OpenZeppelin's TransparentUpgradeableProxy pattern
  */
