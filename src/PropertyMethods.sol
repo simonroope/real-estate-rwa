@@ -1,18 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
-import "./PropertyPool.sol";
 
 /**
  * @title PropertyMethods
  * @notice Implementation contract for property creation and management
  * @dev This contract contains the logic that the proxy will delegate to
  */
-abstract contract PropertyMethods is PropertyPool {
+contract PropertyMethods is Initializable, ERC1155Upgradeable, OwnableUpgradeable {
     using Strings for uint256;
+
+    // Storage variables
+    string private _baseURI;
+    mapping(uint256 => PropertyData) public propertyData;
+    mapping(address => uint256[]) public userProperties;
+    mapping(address => uint256[]) public userInvestments;
+    mapping(address => bool) public authorizedMinters;
+
+    // Structs
+    struct PropertyData {
+        uint256 totalShares;
+        uint256 availableShares;
+        address propertyOwner;
+        bool exists;
+        address[] shareholders;
+        mapping(address => uint256) shareholderShares;
+    }
 
     // Events
     event PropertyCreated(uint256 indexed propertyId, uint256 totalShares);
@@ -45,9 +65,11 @@ abstract contract PropertyMethods is PropertyPool {
      * @dev This replaces the constructor for upgradeable contracts
      * @param baseURI The base URI for token metadata
      */
-    function initialize(string memory baseURI) external {
+    function initialize(string memory baseURI) public initializer {
         if (initialized) revert AlreadyInitialized();
-        _baseURI = baseURI;
+        __ERC1155_init();
+        __Ownable_init(msg.sender);
+        _setURI(baseURI);
         initialized = true;
     }
 
