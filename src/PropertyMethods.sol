@@ -57,11 +57,7 @@ abstract contract PropertyMethods is PropertyPool {
      * @param propertyId Token ID for the property (must be even)
      * @param totalShares Total number of shares to create for this property
      */
-    function createProperty(
-        address to,
-        uint256 propertyId,
-        uint256 totalShares
-    ) external onlyAuthorizedMinter {
+    function createProperty(address to, uint256 propertyId, uint256 totalShares) external onlyAuthorizedMinter {
         if (propertyId % 2 != 0) revert InvalidTokenId();
         if (propertyData[propertyId].exists) revert PropertyAlreadyExists();
         if (totalShares == 0) revert InvalidShareAmount();
@@ -93,11 +89,7 @@ abstract contract PropertyMethods is PropertyPool {
      * @param propertyId Property token ID (must be even)
      * @param amount Number of shares to transfer
      */
-    function transferShares(
-        address to,
-        uint256 propertyId,
-        uint256 amount
-    ) external onlyAuthorizedMinter {
+    function transferShares(address to, uint256 propertyId, uint256 amount) external onlyAuthorizedMinter {
         PropertyData storage property = propertyData[propertyId];
         if (!property.exists) revert PropertyDoesNotExist();
         if (amount > property.availableShares) revert InvalidShareAmount();
@@ -105,7 +97,7 @@ abstract contract PropertyMethods is PropertyPool {
 
         uint256 shareId = propertyId + 1;
         property.availableShares -= amount;
-        
+
         // Update shareholder data
         if (property.shareholderShares[to] == 0) {
             property.shareholders.push(to);
@@ -122,19 +114,13 @@ abstract contract PropertyMethods is PropertyPool {
      * @notice Get property data
      * @param propertyId Property token ID
      */
-    function getPropertyData(uint256 propertyId) external view returns (
-        uint256 totalShares,
-        uint256 availableShares,
-        address propertyOwner,
-        bool exists
-    ) {
+    function getPropertyData(uint256 propertyId)
+        external
+        view
+        returns (uint256 totalShares, uint256 availableShares, address propertyOwner, bool exists)
+    {
         PropertyData storage property = propertyData[propertyId];
-        return (
-            property.totalShares,
-            property.availableShares,
-            property.propertyOwner,
-            property.exists
-        );
+        return (property.totalShares, property.availableShares, property.propertyOwner, property.exists);
     }
 
     /**

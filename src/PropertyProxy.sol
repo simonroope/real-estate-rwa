@@ -13,10 +13,10 @@ import "./PropertyPool.sol";
 contract PropertyProxy is PropertyPool {
     // Immutable proxy admin for managing upgrades
     address public immutable proxyAdmin;
-    
+
     // Implementation version tracking
     uint256 public implementationVersion;
-    
+
     // Current implementation address
     address public implementation;
 
@@ -32,11 +32,7 @@ contract PropertyProxy is PropertyPool {
         _;
     }
 
-    constructor(
-        address _implementation,
-        address _proxyAdmin,
-        string memory baseURI
-    ) PropertyPool(baseURI) {
+    constructor(address _implementation, address _proxyAdmin, string memory baseURI) PropertyPool(baseURI) {
         if (_implementation == address(0)) revert InvalidImplementation();
         if (_proxyAdmin == address(0)) revert InvalidImplementation();
 
@@ -45,9 +41,7 @@ contract PropertyProxy is PropertyPool {
         implementationVersion = 1;
 
         // Initialize the implementation
-        (bool success, ) = _implementation.delegatecall(
-            abi.encodeWithSignature("initialize(string)", baseURI)
-        );
+        (bool success,) = _implementation.delegatecall(abi.encodeWithSignature("initialize(string)", baseURI));
         if (!success) revert InitializationFailed();
 
         emit ImplementationUpgraded(_implementation, 1);
@@ -72,13 +66,10 @@ contract PropertyProxy is PropertyPool {
      * @param newImplementation Address of the new implementation
      * @param data Function call data to execute
      */
-    function upgradeToAndCall(
-        address newImplementation, 
-        bytes memory data
-    ) external onlyProxyAdmin {
+    function upgradeToAndCall(address newImplementation, bytes memory data) external onlyProxyAdmin {
         upgradeTo(newImplementation);
 
-        (bool success, ) = newImplementation.delegatecall(data);
+        (bool success,) = newImplementation.delegatecall(data);
         if (!success) revert InitializationFailed();
     }
 
@@ -101,12 +92,8 @@ contract PropertyProxy is PropertyPool {
 
             switch result
             // delegatecall returns 0 on error.
-            case 0 {
-                revert(0, returndatasize())
-            }
-            default {
-                return(0, returndatasize())
-            }
+            case 0 { revert(0, returndatasize()) }
+            default { return(0, returndatasize()) }
         }
     }
 

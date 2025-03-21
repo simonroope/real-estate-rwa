@@ -13,22 +13,17 @@ import "./PropertyPool.sol";
 contract PropertyToken is PropertyPool {
     // Address of the proxy admin contract
     ProxyAdmin public immutable proxyAdmin;
-    
+
     // The proxy that delegates to the implementation
     TransparentUpgradeableProxy public immutable proxy;
 
-    constructor(
-        address implementation,
-        string memory baseURI
-    ) PropertyPool(baseURI) {
+    constructor(address implementation, string memory baseURI) PropertyPool(baseURI) {
         // Deploy the proxy admin
         proxyAdmin = new ProxyAdmin();
-        
+
         // Deploy the proxy pointing to the implementation
         proxy = new TransparentUpgradeableProxy(
-            implementation,
-            address(proxyAdmin),
-            abi.encodeWithSignature("initialize(string)", baseURI)
+            implementation, address(proxyAdmin), abi.encodeWithSignature("initialize(string)", baseURI)
         );
     }
 
@@ -51,12 +46,8 @@ contract PropertyToken is PropertyPool {
 
             switch result
             // delegatecall returns 0 on error.
-            case 0 {
-                revert(0, returndatasize())
-            }
-            default {
-                return(0, returndatasize())
-            }
+            case 0 { revert(0, returndatasize()) }
+            default { return(0, returndatasize()) }
         }
     }
 

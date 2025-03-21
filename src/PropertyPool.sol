@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract PropertyPool is ERC1155, Ownable {
     // Base URI for token metadata
     string internal _baseURI;
-    
+
     // Property specific data
     struct PropertyData {
         uint256 totalShares;
@@ -21,7 +21,7 @@ contract PropertyPool is ERC1155, Ownable {
         address[] shareholders;
         bool exists;
     }
-    
+
     // Storage variables
     mapping(uint256 => PropertyData) internal propertyData;
     mapping(address => uint256[]) internal userProperties;
