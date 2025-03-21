@@ -19,7 +19,7 @@ contract PropertyToken is PropertyPool {
 
     constructor(address implementation, string memory baseURI) PropertyPool(baseURI) {
         // Deploy the proxy admin
-        proxyAdmin = new ProxyAdmin();
+        proxyAdmin = new ProxyAdmin(msg.sender);
 
         // Deploy the proxy pointing to the implementation
         proxy = new TransparentUpgradeableProxy(
