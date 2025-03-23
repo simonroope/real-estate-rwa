@@ -57,7 +57,7 @@ contract PropertyMethodsV2 is Initializable, OwnableUpgradeable {
      * @param baseURI_ Base URI for token metadata
      * @param propertyToken_ Address of the PropertyToken contract
      */
-    function initialize(string memory baseURI_, address propertyToken_) public initializer {
+    function initialize(string memory baseURI_, address propertyToken_) external initializer {
         __Ownable_init(msg.sender);
         _baseURI = baseURI_;
         propertyToken = PropertyToken(propertyToken_);

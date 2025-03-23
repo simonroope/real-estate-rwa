@@ -116,3 +116,5 @@ PropertyMethodsV2 implementationV2 = new PropertyMethodsV2();
 ## Deploy to Localhost Chain
 $ anvil
 $ forge script script/DeployPropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast
+
+$ forge script script/UpgradePropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast

@@ -121,4 +121,4 @@ contract UpgradePropertySystemTest is Test {
         assertEq(propertyToken.balanceOf(alice, propertyId), 600, "Alice's remaining shares should be preserved");
         assertEq(propertyToken.balanceOf(bob, propertyId), 400, "Bob's received shares should be preserved");
     }
-} 
+}

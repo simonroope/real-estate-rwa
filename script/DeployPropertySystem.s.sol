@@ -6,7 +6,7 @@ import {console} from "forge-std/console.sol";
 import {PropertyToken} from "../src/PropertyToken.sol";
 import {PropertyMethodsV1} from "../src/PropertyMethodsV1.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {PropertyProxy} from "../src/PropertyProxy.sol";
 
 contract DeployPropertySystem is Script {
     ProxyAdmin public proxyAdmin;
@@ -36,9 +36,8 @@ contract DeployPropertySystem is Script {
             PropertyMethodsV1.initialize.selector, "https://api.example.com/token/", address(propertyToken)
         );
 
-        // Deploy TransparentUpgradeableProxy
-        TransparentUpgradeableProxy propertyProxy =
-            new TransparentUpgradeableProxy(address(implementation), address(proxyAdmin), data);
+        // Deploy PropertyProxy
+        PropertyProxy propertyProxy = new PropertyProxy(address(implementation), address(proxyAdmin), data);
         console.log("PropertyProxy deployed at:", address(propertyProxy));
 
         // Stop broadcasting transactions
