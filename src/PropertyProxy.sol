@@ -20,17 +20,11 @@ contract PropertyProxy is TransparentUpgradeableProxy {
     }
 
     function getAdmin() external view returns (address) {
-        console.log("PropertyProxy.getAdmin called");
-        address admin = ERC1967Utils.getAdmin();
-        console.log("Admin from ERC1967Utils:", admin);
-        return admin;
+        return ERC1967Utils.getAdmin();
     }
 
     function getImplementation() external view returns (address) {
-        console.log("PropertyProxy.getImplementation called");
-        address impl = ERC1967Utils.getImplementation();
-        console.log("Implementation from ERC1967Utils:", impl);
-        return impl;
+        return ERC1967Utils.getImplementation();
     }
 
     // Handle incoming ETH

@@ -9,7 +9,6 @@ import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.s
 import {PropertyProxy} from "../src/PropertyProxy.sol";
 
 contract DeployPropertySystem is Script {
-    ProxyAdmin public proxyAdmin;
     PropertyToken public propertyToken;
 
     function run() public returns (address proxyAddress) {
@@ -27,18 +26,18 @@ contract DeployPropertySystem is Script {
         PropertyMethodsV1 implementation = new PropertyMethodsV1();
         console.log("PropertyMethodsV1 implementation deployed at:", address(implementation));
 
-        // Deploy ProxyAdmin
-        proxyAdmin = new ProxyAdmin(msg.sender);
-        console.log("ProxyAdmin deployed at:", address(proxyAdmin));
-
         // Prepare initialization data for proxy
         bytes memory data = abi.encodeWithSelector(
             PropertyMethodsV1.initialize.selector, "https://api.example.com/token/", address(propertyToken)
         );
 
-        // Deploy PropertyProxy
-        PropertyProxy propertyProxy = new PropertyProxy(address(implementation), address(proxyAdmin), data);
+        // Deploy PropertyProxy (it will create its own ProxyAdmin)
+        PropertyProxy propertyProxy = new PropertyProxy(address(implementation), msg.sender, data);
         console.log("PropertyProxy deployed at:", address(propertyProxy));
+
+        // Get the ProxyAdmin address that was created
+        address proxyAdminAddress = propertyProxy.getAdmin();
+        console.log("ProxyAdmin created at:", proxyAdminAddress);
 
         // Stop broadcasting transactions
         vm.stopBroadcast();

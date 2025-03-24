@@ -9,6 +9,7 @@ import {PropertyMethodsV1} from "../src/PropertyMethodsV1.sol";
 import {PropertyMethodsV2} from "../src/PropertyMethodsV2.sol";
 import {PropertyToken} from "../src/PropertyToken.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import {PropertyProxy} from "../src/PropertyProxy.sol";
 
 contract UpgradePropertySystemTest is Test {
     DeployPropertySystem deployer;
@@ -17,8 +18,9 @@ contract UpgradePropertySystemTest is Test {
     address proxyAddress;
     address proxyAdminAddress;
     PropertyToken propertyToken;
-    PropertyMethodsV1 proxyV1;
-    PropertyMethodsV2 proxyV2;
+    PropertyMethodsV1 propertyMethodsV1;
+    PropertyMethodsV2 propertyMethodsV2;
+    PropertyProxy propertyProxy;
 
     function setUp() public {
         owner = vm.addr(0x1234);
@@ -29,9 +31,10 @@ contract UpgradePropertySystemTest is Test {
         proxyAddress = deployer.run();
 
         // Get contract instances
-        proxyV1 = PropertyMethodsV1(proxyAddress);
-        propertyToken = PropertyToken(proxyV1.propertyToken());
-        proxyAdminAddress = address(deployer.proxyAdmin());
+        propertyProxy = PropertyProxy(payable(proxyAddress));
+        propertyMethodsV1 = PropertyMethodsV1(proxyAddress);
+        propertyToken = PropertyToken(propertyMethodsV1.propertyToken());
+        proxyAdminAddress = propertyProxy.getAdmin();
     }
 
     function testUpgradePreservesData() public {
@@ -42,11 +45,11 @@ contract UpgradePropertySystemTest is Test {
 
         // Authorize minter in PropertyMethods
         vm.prank(owner);
-        proxyV1.authorizeMinter(address(this));
+        propertyMethodsV1.authorizeMinter(address(this));
 
         // Create property through proxy
         vm.prank(alice);
-        proxyV1.createProperty(propertyId, totalShares);
+        propertyMethodsV1.createProperty(propertyId, totalShares);
 
         // Verify property creation with V1
         assertEq(propertyToken.balanceOf(alice, propertyId), totalShares, "Owner should have all shares");
@@ -56,12 +59,12 @@ contract UpgradePropertySystemTest is Test {
         upgrader.run();
 
         // Get V2 proxy instance
-        proxyV2 = PropertyMethodsV2(proxyAddress);
+        propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
 
         // Verify data is preserved after upgrade
         assertEq(propertyToken.balanceOf(alice, propertyId), totalShares, "Shares should be preserved after upgrade");
-        assertEq(proxyV2.getPropertyOwner(propertyId), alice, "Property ownership should be preserved");
-        assertEq(proxyV2.getAvailableShares(propertyId), 0, "Available shares should be preserved");
+        assertEq(propertyMethodsV2.getPropertyOwner(propertyId), alice, "Property ownership should be preserved");
+        assertEq(propertyMethodsV2.getAvailableShares(propertyId), 0, "Available shares should be preserved");
     }
 
     function testUpgradePreservesMultipleProperties() public {
@@ -71,26 +74,26 @@ contract UpgradePropertySystemTest is Test {
 
         // Authorize minter
         vm.prank(owner);
-        proxyV1.authorizeMinter(address(this));
+        propertyMethodsV1.authorizeMinter(address(this));
 
         // Create properties
         vm.prank(alice);
-        proxyV1.createProperty(1, 1000);
+        propertyMethodsV1.createProperty(1, 1000);
         vm.prank(bob);
-        proxyV1.createProperty(2, 2000);
+        propertyMethodsV1.createProperty(2, 2000);
 
         // Perform upgrade
         vm.prank(owner);
         upgrader.run();
 
         // Get V2 proxy instance
-        proxyV2 = PropertyMethodsV2(proxyAddress);
+        propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
 
         // Verify all properties are preserved
         assertEq(propertyToken.balanceOf(alice, 1), 1000, "Alice's shares should be preserved");
         assertEq(propertyToken.balanceOf(bob, 2), 2000, "Bob's shares should be preserved");
-        assertEq(proxyV2.getPropertyOwner(1), alice, "Alice's ownership should be preserved");
-        assertEq(proxyV2.getPropertyOwner(2), bob, "Bob's ownership should be preserved");
+        assertEq(propertyMethodsV2.getPropertyOwner(1), alice, "Alice's ownership should be preserved");
+        assertEq(propertyMethodsV2.getPropertyOwner(2), bob, "Bob's ownership should be preserved");
     }
 
     function testUpgradePreservesUserInvestments() public {
@@ -102,11 +105,11 @@ contract UpgradePropertySystemTest is Test {
 
         // Authorize minter
         vm.prank(owner);
-        proxyV1.authorizeMinter(address(this));
+        propertyMethodsV1.authorizeMinter(address(this));
 
         // Create property and transfer shares
         vm.prank(alice);
-        proxyV1.createProperty(propertyId, totalShares);
+        propertyMethodsV1.createProperty(propertyId, totalShares);
         vm.prank(alice);
         propertyToken.safeTransferFrom(alice, bob, propertyId, 400, "");
 
@@ -115,7 +118,7 @@ contract UpgradePropertySystemTest is Test {
         upgrader.run();
 
         // Get V2 proxy instance
-        proxyV2 = PropertyMethodsV2(proxyAddress);
+        propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
 
         // Verify all investments are preserved
         assertEq(propertyToken.balanceOf(alice, propertyId), 600, "Alice's remaining shares should be preserved");

@@ -7,13 +7,16 @@ import {DeployPropertySystem} from "../script/DeployPropertySystem.s.sol";
 import {PropertyToken} from "../src/PropertyToken.sol";
 import {PropertyMethodsV1} from "../src/PropertyMethodsV1.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import {PropertyProxy} from "../src/PropertyProxy.sol";
 
 contract DeployPropertySystemTest is Test {
     DeployPropertySystem deployer;
     address owner;
     address proxyAddress;
+    address proxyAdminAddress;
     PropertyToken propertyToken;
     PropertyMethodsV1 proxy;
+    PropertyProxy propertyProxy;
 
     function setUp() public {
         owner = vm.addr(0x1234);
@@ -23,13 +26,18 @@ contract DeployPropertySystemTest is Test {
         proxyAddress = deployer.run();
 
         // Get contract instances
+        propertyProxy = PropertyProxy(payable(proxyAddress));
         proxy = PropertyMethodsV1(proxyAddress);
         propertyToken = PropertyToken(proxy.propertyToken());
+        proxyAdminAddress = propertyProxy.getAdmin();
     }
 
     function testDeployPropertySystem() public view {
         // Verify proxy address is not zero
         assertTrue(proxyAddress != address(0), "Proxy address should not be zero");
+
+        // Verify ProxyAdmin was created
+        assertTrue(proxyAdminAddress != address(0), "ProxyAdmin address should not be zero");
 
         // Verify initialization
         assertTrue(address(proxy.propertyToken()) != address(0), "PropertyToken should be set");
@@ -44,6 +52,7 @@ contract DeployPropertySystemTest is Test {
         console.log("-------------------");
         console.log("PropertyToken:", address(propertyToken));
         console.log("PropertyProxy:", proxyAddress);
+        console.log("ProxyAdmin:", proxyAdminAddress);
         console.log("Deployer:", owner);
     }
 
