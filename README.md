@@ -68,7 +68,7 @@ $ cast --help
 # Real Estate RWA
 ## Initial Setup:
 * PropertyToken is the immutable Real Estate ERC1155 token
-* ProxyAdmin is the admin contract for the proxy contracts.
+* ProxyAdmin is the admin contract for the proxy contracts. Created internally.
 * PropertyProxy is the proxy contract that users interact with
 * PropertyMethodsV1 is the implementation contract containing the business logic
 * PropertyMethodsV2 is the implementation contract containing additional business logic
@@ -87,7 +87,7 @@ PropertyMethodsV1 implementationV1 = new PropertyMethodsV1();
 // PropertyProxy delegates to implementation contract using ProxyAdmin controller. 
 ```shell
 TransparentUpgradeableProxy propertyProxy =
-            new TransparentUpgradeableProxy(address(implementationV1), address(proxyAdmin), data);
+            new TransparentUpgradeableProxy(address(implementationV1), msg.sender, data);
 ```
 
 ### Upgrade:
@@ -115,6 +115,6 @@ PropertyMethodsV2 implementationV2 = new PropertyMethodsV2();
 
 ## Deploy to Localhost Chain
 $ anvil
-$ forge script script/DeployPropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast
+$ forge script script/DeployPropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast -vv
 
-$ forge script script/UpgradePropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast
+$ forge script script/UpgradePropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast -vv
