@@ -10,14 +10,11 @@ import {PropertyProxy} from "../src/PropertyProxy.sol";
 
 contract UpgradePropertySystem is Script {
     function run() public {
-        // Get deployment private key from environment or use test key
-        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0x1234));
+        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80));
+        vm.startBroadcast(deployerPrivateKey);
 
         // Get proxy address from environment or use test address
         address proxyAddress = vm.envOr("PROXY_ADDRESS", address(0x9abc));
-
-        // Start broadcasting transactions
-        vm.startBroadcast(deployerPrivateKey);
 
         // Deploy new implementation
         PropertyMethodsV2 implementationV2 = new PropertyMethodsV2();
@@ -25,11 +22,11 @@ contract UpgradePropertySystem is Script {
 
         // Get the proxy instance
         console.log("\nAttempting to get proxy instance at:", proxyAddress);
-        PropertyProxy proxy = PropertyProxy(payable(proxyAddress));
+        PropertyProxy propertyProxy = PropertyProxy(payable(proxyAddress));
 
         // Get the admin address from the proxy
         console.log("\nCalling getAdmin() on proxy");
-        address proxyAdminAddress = proxy.getAdmin();
+        address proxyAdminAddress = propertyProxy.getAdmin();
         console.log("ProxyAdmin address:", proxyAdminAddress);
 
         // Get proxy admin contract
@@ -41,13 +38,13 @@ contract UpgradePropertySystem is Script {
         // Check if caller is the ProxyAdmin owner
         console.log("ProxyAdmin owner:", proxyAdmin.owner());
         if (proxyAdmin.owner() != msg.sender) {
-            console.log("ERROR: Caller is not the ProxyAdmin owner!");
+            console.log("ERROR: Caller", msg.sender, "is not the ProxyAdmin owner", proxyAdmin.owner());
         } else {
             console.log("Owner check passed");
         }
 
         console.log("\nCalling getImplementation() on proxy");
-        address currentImplementation = proxy.getImplementation();
+        address currentImplementation = propertyProxy.getImplementation();
         console.log("Current implementation:", currentImplementation);
 
         console.log("\nProxy Status:");
@@ -61,7 +58,6 @@ contract UpgradePropertySystem is Script {
         );
         console.log("Proxy upgraded to new implementation");
 
-        // Stop broadcasting transactions
         vm.stopBroadcast();
     }
 }

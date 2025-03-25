@@ -14,16 +14,21 @@ import {PropertyProxy} from "../src/PropertyProxy.sol";
 contract UpgradePropertySystemTest is Test {
     DeployPropertySystem deployer;
     UpgradePropertySystem upgrader;
+    uint256 privateKey;
     address owner;
     address proxyAddress;
     address proxyAdminAddress;
-    PropertyToken propertyToken;
+    address propertyMethodsV1Address;
+    address propertyMethodsV2Address;
     PropertyMethodsV1 propertyMethodsV1;
     PropertyMethodsV2 propertyMethodsV2;
+    PropertyToken propertyToken;
     PropertyProxy propertyProxy;
+    ProxyAdmin proxyAdmin;
 
     function setUp() public {
-        owner = vm.addr(0x1234);
+        privateKey = vm.envOr("PRIVATE_KEY", uint256(0x1234));
+        owner = vm.addr(privateKey);
         deployer = new DeployPropertySystem();
         upgrader = new UpgradePropertySystem();
 
@@ -32,9 +37,22 @@ contract UpgradePropertySystemTest is Test {
 
         // Get contract instances
         propertyProxy = PropertyProxy(payable(proxyAddress));
-        propertyMethodsV1 = PropertyMethodsV1(proxyAddress);
-        propertyToken = PropertyToken(propertyMethodsV1.propertyToken());
         proxyAdminAddress = propertyProxy.getAdmin();
+        propertyMethodsV1Address = propertyProxy.getImplementation();
+
+        console.log("\nSetup Debug Info:");
+        console.log("-------------------");
+        console.log("Proxy Address:", proxyAddress);
+        console.log("ProxyAdmin Address:", proxyAdminAddress);
+        console.log("Implementation Address:", propertyMethodsV1Address);
+        console.log("Owner Address:", owner);
+
+        propertyMethodsV1 = PropertyMethodsV1(proxyAddress);
+        address tokenAddress = address(propertyMethodsV1.propertyToken());
+        console.log("Token Address from Implementation:", tokenAddress);
+
+        propertyToken = PropertyToken(tokenAddress);
+        console.log("PropertyToken instance created at:", address(propertyToken));
     }
 
     function testUpgradePreservesData() public {
@@ -43,10 +61,6 @@ contract UpgradePropertySystemTest is Test {
         uint256 totalShares = 1000;
         address alice = makeAddr("alice");
 
-        // Authorize minter in PropertyMethods
-        vm.prank(owner);
-        propertyMethodsV1.authorizeMinter(address(this));
-
         // Create property through proxy
         vm.prank(alice);
         propertyMethodsV1.createProperty(propertyId, totalShares);
@@ -54,9 +68,10 @@ contract UpgradePropertySystemTest is Test {
         // Verify property creation with V1
         assertEq(propertyToken.balanceOf(alice, propertyId), totalShares, "Owner should have all shares");
 
-        // Perform upgrade
-        vm.prank(owner);
+        // Perform upgrade as proxy
+        console.log("Performing upgrade");
         upgrader.run();
+        console.log("Upgrade completed");
 
         // Get V2 proxy instance
         propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
@@ -72,19 +87,16 @@ contract UpgradePropertySystemTest is Test {
         address alice = makeAddr("alice");
         address bob = makeAddr("bob");
 
-        // Authorize minter
-        vm.prank(owner);
-        propertyMethodsV1.authorizeMinter(address(this));
-
         // Create properties
         vm.prank(alice);
         propertyMethodsV1.createProperty(1, 1000);
         vm.prank(bob);
         propertyMethodsV1.createProperty(2, 2000);
 
-        // Perform upgrade
-        vm.prank(owner);
+        // Perform upgrade as proxy
+        console.log("Performing upgrade");
         upgrader.run();
+        console.log("Upgrade completed");
 
         // Get V2 proxy instance
         propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
@@ -103,19 +115,16 @@ contract UpgradePropertySystemTest is Test {
         address alice = makeAddr("alice");
         address bob = makeAddr("bob");
 
-        // Authorize minter
-        vm.prank(owner);
-        propertyMethodsV1.authorizeMinter(address(this));
-
         // Create property and transfer shares
         vm.prank(alice);
         propertyMethodsV1.createProperty(propertyId, totalShares);
         vm.prank(alice);
         propertyToken.safeTransferFrom(alice, bob, propertyId, 400, "");
 
-        // Perform upgrade
-        vm.prank(owner);
+        // Perform upgrade as proxy
+        console.log("Performing upgrade");
         upgrader.run();
+        console.log("Upgrade completed");
 
         // Get V2 proxy instance
         propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
