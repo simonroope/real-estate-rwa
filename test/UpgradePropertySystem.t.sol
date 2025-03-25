@@ -52,10 +52,7 @@ contract UpgradePropertySystemTest is Test {
         console.log("Token Address from Implementation:", tokenAddress);
 
         propertyToken = PropertyToken(tokenAddress);
-        console.log(
-            "PropertyToken instance created at:",
-            address(propertyToken)
-        );
+        console.log("PropertyToken instance created at:", address(propertyToken));
     }
 
     function testUpgradePreservesData() public {
@@ -69,11 +66,7 @@ contract UpgradePropertySystemTest is Test {
         propertyMethodsV1.createProperty(propertyId, totalShares);
 
         // Verify property creation with V1
-        assertEq(
-            propertyToken.balanceOf(alice, propertyId),
-            totalShares,
-            "Owner should have all shares"
-        );
+        assertEq(propertyToken.balanceOf(alice, propertyId), totalShares, "Owner should have all shares");
 
         // Perform upgrade as proxy
         console.log("Performing upgrade", msg.sender);
@@ -85,21 +78,9 @@ contract UpgradePropertySystemTest is Test {
         propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
 
         // Verify data is preserved after upgrade
-        assertEq(
-            propertyToken.balanceOf(alice, propertyId),
-            totalShares,
-            "Shares should be preserved after upgrade"
-        );
-        assertEq(
-            propertyMethodsV2.getPropertyOwner(propertyId),
-            alice,
-            "Property ownership should be preserved"
-        );
-        assertEq(
-            propertyMethodsV2.getAvailableShares(propertyId),
-            1000,
-            "Available shares should be preserved"
-        );
+        assertEq(propertyToken.balanceOf(alice, propertyId), totalShares, "Shares should be preserved after upgrade");
+        assertEq(propertyMethodsV2.getPropertyOwner(propertyId), alice, "Property ownership should be preserved");
+        assertEq(propertyMethodsV2.getAvailableShares(propertyId), 1000, "Available shares should be preserved");
     }
 
     function testUpgradePreservesMultipleProperties() public {
@@ -122,26 +103,10 @@ contract UpgradePropertySystemTest is Test {
         propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
 
         // Verify all properties are preserved
-        assertEq(
-            propertyToken.balanceOf(alice, 1),
-            1000,
-            "Alice's shares should be preserved"
-        );
-        assertEq(
-            propertyToken.balanceOf(bob, 2),
-            2000,
-            "Bob's shares should be preserved"
-        );
-        assertEq(
-            propertyMethodsV2.getPropertyOwner(1),
-            alice,
-            "Alice's ownership should be preserved"
-        );
-        assertEq(
-            propertyMethodsV2.getPropertyOwner(2),
-            bob,
-            "Bob's ownership should be preserved"
-        );
+        assertEq(propertyToken.balanceOf(alice, 1), 1000, "Alice's shares should be preserved");
+        assertEq(propertyToken.balanceOf(bob, 2), 2000, "Bob's shares should be preserved");
+        assertEq(propertyMethodsV2.getPropertyOwner(1), alice, "Alice's ownership should be preserved");
+        assertEq(propertyMethodsV2.getPropertyOwner(2), bob, "Bob's ownership should be preserved");
     }
 
     function testUpgradePreservesUserInvestments() public {
@@ -166,15 +131,7 @@ contract UpgradePropertySystemTest is Test {
         propertyMethodsV2 = PropertyMethodsV2(proxyAddress);
 
         // Verify all investments are preserved
-        assertEq(
-            propertyToken.balanceOf(alice, propertyId),
-            600,
-            "Alice's remaining shares should be preserved"
-        );
-        assertEq(
-            propertyToken.balanceOf(bob, propertyId),
-            400,
-            "Bob's received shares should be preserved"
-        );
+        assertEq(propertyToken.balanceOf(alice, propertyId), 600, "Alice's remaining shares should be preserved");
+        assertEq(propertyToken.balanceOf(bob, propertyId), 400, "Bob's received shares should be preserved");
     }
 }

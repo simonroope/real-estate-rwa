@@ -16,31 +16,20 @@ contract DeployPropertySystem is Script {
         vm.startBroadcast(deployerAddr);
 
         // Deploy PropertyToken
-        PropertyToken propertyToken = new PropertyToken(
-            "https://api.example.com/token/"
-        );
+        PropertyToken propertyToken = new PropertyToken("https://api.example.com/token/");
         console.log("PropertyToken deployed at:", address(propertyToken));
 
         // Deploy implementation contract
         PropertyMethodsV1 implementation = new PropertyMethodsV1();
-        console.log(
-            "PropertyMethodsV1 implementation deployed at:",
-            address(implementation)
-        );
+        console.log("PropertyMethodsV1 implementation deployed at:", address(implementation));
 
         // Prepare initialization data for proxy
         bytes memory data = abi.encodeWithSelector(
-            PropertyMethodsV1.initialize.selector,
-            "https://api.example.com/token/",
-            address(propertyToken)
+            PropertyMethodsV1.initialize.selector, "https://api.example.com/token/", address(propertyToken)
         );
 
         // Deploy PropertyProxy (it will create its own ProxyAdmin)
-        PropertyProxy propertyProxy = new PropertyProxy(
-            address(implementation),
-            deployerAddr,
-            data
-        );
+        PropertyProxy propertyProxy = new PropertyProxy(address(implementation), deployerAddr, data);
         console.log("PropertyProxy deployed at:", address(propertyProxy));
 
         // Get the ProxyAdmin address that was created
