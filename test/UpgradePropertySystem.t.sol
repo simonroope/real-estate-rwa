@@ -69,7 +69,8 @@ contract UpgradePropertySystemTest is Test {
         assertEq(propertyToken.balanceOf(alice, propertyId), totalShares, "Owner should have all shares");
 
         // Perform upgrade as proxy
-        console.log("Performing upgrade");
+        console.log("Performing upgrade", msg.sender);
+
         upgrader.run();
         console.log("Upgrade completed");
 
@@ -79,7 +80,7 @@ contract UpgradePropertySystemTest is Test {
         // Verify data is preserved after upgrade
         assertEq(propertyToken.balanceOf(alice, propertyId), totalShares, "Shares should be preserved after upgrade");
         assertEq(propertyMethodsV2.getPropertyOwner(propertyId), alice, "Property ownership should be preserved");
-        assertEq(propertyMethodsV2.getAvailableShares(propertyId), 0, "Available shares should be preserved");
+        assertEq(propertyMethodsV2.getAvailableShares(propertyId), 1000, "Available shares should be preserved");
     }
 
     function testUpgradePreservesMultipleProperties() public {

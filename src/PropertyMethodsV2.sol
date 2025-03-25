@@ -64,7 +64,7 @@ contract PropertyMethodsV2 is Initializable, AccessControlUpgradeable {
         __AccessControl_init();
         _baseURI = baseURI_;
         propertyToken = PropertyToken(propertyToken_);
-        
+
         // Grant MINTER_ROLE to the deployer
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);

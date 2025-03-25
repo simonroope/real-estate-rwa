@@ -9,10 +9,11 @@ import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.s
 import {PropertyProxy} from "../src/PropertyProxy.sol";
 
 contract DeployPropertySystem is Script {
-
     function run() public returns (address proxyAddress) {
         uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0x1234));
-        vm.startBroadcast(deployerPrivateKey);
+        address deployerAddr = vm.addr(deployerPrivateKey);
+
+        vm.startBroadcast(deployerAddr);
 
         // Deploy PropertyToken
         PropertyToken propertyToken = new PropertyToken("https://api.example.com/token/");
@@ -28,7 +29,7 @@ contract DeployPropertySystem is Script {
         );
 
         // Deploy PropertyProxy (it will create its own ProxyAdmin)
-        PropertyProxy propertyProxy = new PropertyProxy(address(implementation), msg.sender, data);
+        PropertyProxy propertyProxy = new PropertyProxy(address(implementation), deployerAddr, data);
         console.log("PropertyProxy deployed at:", address(propertyProxy));
 
         // Get the ProxyAdmin address that was created

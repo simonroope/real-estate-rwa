@@ -16,7 +16,7 @@ contract PropertyProxy is TransparentUpgradeableProxy {
     {
         console.log("PropertyProxy constructor called");
         console.log("Logic address:", _logic);
-        console.log("Admin address:", admin_);
+        console.log("Admin (owner of admin proxy) address:", admin_);
     }
 
     function getAdmin() external view returns (address) {
