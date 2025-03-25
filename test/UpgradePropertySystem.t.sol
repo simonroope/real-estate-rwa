@@ -70,7 +70,6 @@ contract UpgradePropertySystemTest is Test {
 
         // Perform upgrade as proxy
         console.log("Performing upgrade", msg.sender);
-
         upgrader.run();
         console.log("Upgrade completed");
 

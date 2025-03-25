@@ -11,6 +11,7 @@ import {PropertyProxy} from "../src/PropertyProxy.sol";
 contract UpgradePropertySystem is Script {
     function run() public {
         uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0x1234));
+        address deployerAddr = vm.addr(deployerPrivateKey);
         vm.startBroadcast(deployerPrivateKey);
 
         // Get proxy address from environment or use test address
@@ -35,22 +36,22 @@ contract UpgradePropertySystem is Script {
         // Prepare initialization data if needed
         bytes memory data = ""; // Empty data since we don't need to initialize
 
-        // Check if caller is the ProxyAdmin owner
+        // Check if deployer is the ProxyAdmin owner
         console.log("ProxyAdmin owner:", proxyAdmin.owner());
-        if (proxyAdmin.owner() != msg.sender) {
-            console.log("ERROR: Caller", msg.sender, "is not the ProxyAdmin owner", proxyAdmin.owner());
+        if (proxyAdmin.owner() != deployerAddr) {
+            console.log("ERROR: Deployer", deployerAddr, "is not the ProxyAdmin owner", proxyAdmin.owner());
+            revert("Deployer is not the ProxyAdmin owner");
         } else {
-            console.log("Owner check passed");
+            console.log("Deployer check passed");
         }
 
         console.log("\nCalling getImplementation() on proxy");
         address currentImplementation = propertyProxy.getImplementation();
-        console.log("Current implementation:", currentImplementation);
 
         console.log("\nProxy Status:");
         console.log("Current proxy admin:", proxyAdminAddress);
         console.log("Current proxy implementation:", currentImplementation);
-        console.log("New implementation:", address(implementationV2));
+        console.log("New proxy implementation:", address(implementationV2));
 
         // Upgrade proxy to new implementation
         proxyAdmin.upgradeAndCall{value: 0}(
