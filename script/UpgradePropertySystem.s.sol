@@ -10,7 +10,7 @@ import {PropertyProxy} from "../src/PropertyProxy.sol";
 
 contract UpgradePropertySystem is Script {
     function run() public {
-        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0x1234));
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         // Get proxy address from environment or use test address
