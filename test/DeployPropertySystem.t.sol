@@ -22,8 +22,8 @@ contract DeployPropertySystemTest is Test {
 
     function setUp() public {
         // Use the same private key as in the deployment script
-        // uint256 deployerPrivateKey = 0x1234;
-        // owner = vm.addr(deployerPrivateKey);
+        uint256 deployerPrivateKey = 0x1234;
+        owner = vm.addr(deployerPrivateKey);
         deployer = new DeployPropertySystem();
 
         // Deploy the system
