@@ -87,7 +87,7 @@ PropertyMethodsV1 implementationV1 = new PropertyMethodsV1();
 // PropertyProxy delegates to implementation contract using ProxyAdmin controller. 
 ```shell
 TransparentUpgradeableProxy propertyProxy =
-            new TransparentUpgradeableProxy(address(implementationV1), msg.sender, data);
+            new TransparentUpgradeableProxy(address(implementationV1), deployerAddr, data);
 ```
 
 ### Upgrade:
@@ -116,5 +116,11 @@ PropertyMethodsV2 implementationV2 = new PropertyMethodsV2();
 ## Deploy to Localhost Chain
 $ anvil
 $ forge script script/DeployPropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast -vv
-
 $ forge script script/UpgradePropertySystem.s.sol --rpc-url http://localhost:8545 --private-key <anvil(0)> --broadcast -vv
+
+## Run tests Localhost Chain
+forge test --match-path test/DeployPropertySystem.t.sol -vv
+forge test --match-path test/UpgradePropertySystem.t.sol -vv
+
+or a single test
+forge test --rpc-url http://localhost:8545 --match-test testUpgradePreservesData -vv
